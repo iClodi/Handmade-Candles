@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Handmade Candles - Velas Artesanales</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Poppins:wght@300;400;500&display=swap');
+
+    /* === Fondo animado suave === */
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(-45deg, #f8f5ec 0%, #fff1e0 25%, #f7e6cf 50%, #f8f5ec 75%);
+      background-size: 400% 400%;
+      animation: gradientMove 14s ease infinite;
+      color: #3e342b;
+      overflow-x: hidden;
+    }
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* === Header === */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 8%;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(8px);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      border-bottom: 1px solid rgba(224,213,198,0.9);
+      animation: fadeDown 0.9s ease;
+    }
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: transform .35s ease, filter .35s ease;
+    }
+    .logo img { height: 46px; border-radius: 8px; display: block; }
+    .logo:hover { transform: scale(1.06); filter: brightness(1.06); }
+    .logo-text {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 1.4rem;
+      color: #2d2a26;
+      letter-spacing: 0.6px;
+    }
+
+    nav { display: flex; align-items: center; gap: 16px; }
+    nav a {
+      color: #3e342b;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color .2s, transform .2s;
+    }
+    nav a:hover { color: #9a7b56; transform: translateY(-2px); }
+
+    #cart-btn {
+      background: none;
+      border: none;
+      font-size: 1.15rem;
+      cursor: pointer;
+      position: relative;
+    }
+    #cart-count {
+      background: #b5855d;
+      color: #fff;
+      font-size: 0.72rem;
+      padding: 2px 7px;
+      border-radius: 999px;
+      position: absolute;
+      top: -8px;
+      right: -10px;
+    }
+
+    /* === Hero === */
+    .hero {
+      text-align: center;
+      padding: 110px 20px;
+      position: relative;
+      overflow: hidden;
+      background: url('https://images.unsplash.com/photo-1607197123775-4c1e3b61c50a?auto=format&fit=crop&w=1500&q=80') center/cover no-repeat;
+      color: white;
+    }
+    .hero::after {
+      content: "";
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.45));
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 900px;
+      margin: 0 auto;
+      animation: fadeUp 1s ease;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.1rem;
+      margin: 0 0 12px;
+      color: #fff;
+    }
+    .hero p {
+      margin: 0 auto;
+      max-width: 700px;
+      color: #fff;
+      font-size: 1.05rem;
+      line-height: 1.5;
+    }
+
+    /* === Catálogo === */
+    .catalogo {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 28px;
+      padding: 64px 8%;
+    }
+    .vela {
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+      overflow: hidden;
+      transition: transform .35s ease, box-shadow .35s ease;
+      opacity: 0;
+      transform: translateY(40px);
+    }
+    .vela.visible { opacity: 1; transform: translateY(0); transition: all .85s cubic-bezier(.2,.9,.2,1); }
+    .vela:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 14px 36px rgba(0,0,0,0.12); }
+    .vela img { width: 100%; height: 250px; object-fit: cover; display: block; }
+    .vela-content { padding: 18px; text-align: center; }
+    .vela-content h3 { font-family: 'Playfair Display', serif; color: #9a7b56; margin: 8px 0; font-size: 1.15rem; }
+    .vela-content p { color: #6a5c4a; font-size: .95rem; margin-bottom: 10px; }
+    .precio { color: #9a7b56; font-weight: 600; font-size: 1.05rem; margin-bottom: 12px; display: block; }
+    .add-cart {
+      background: #9a7b56;
+      color: #fff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: transform .18s ease, background .2s ease;
+    }
+    .add-cart:hover { transform: translateY(-3px); background: #7f6443; }
+
+    /* === Carrito === */
+    .cart-modal {
+      display: none;
+      position: fixed;
+      right: 20px;
+      top: 86px;
+      width: 340px;
+      max-height: 460px;
+      background: #fffaf3;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.18);
+      border-radius: 14px;
+      padding: 16px;
+      z-index: 2000;
+      overflow: auto;
+      animation: fadeModal .28s ease;
+    }
+    @keyframes fadeModal {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      margin: 10px 0;
+      font-size: .95rem;
+      color: #4b3b2a;
+    }
+    .remove-item { color: #c0392b; cursor: pointer; margin-left: 8px; font-weight: 700; }
+    .total { text-align: right; margin-top: 12px; font-weight: 700; color: #9a7b56; }
+
+    /* === Sobre nosotros, misión, visión y valores === */
+    .sobre-nosotros, .mvv {
+      background: rgba(243,237,226,0.9);
+      padding: 70px 8%;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all .9s ease;
+    }
+    .visible { opacity: 1; transform: translateY(0); }
+    .sobre-nosotros h2, .mvv h2 {
+      font-family: 'Playfair Display', serif;
+      color: #9a7b56;
+      font-size: 1.8rem;
+      margin-bottom: 12px;
+    }
+    .sobre-nosotros p, .mvv p {
+      max-width: 720px;
+      margin: 0 auto;
+      color: #4b3b2a;
+      line-height: 1.7;
+    }
+    .mvv .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+      margin-top: 30px;
+    }
+    .mvv .item {
+      background: #fff;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+      transition: transform .3s;
+    }
+    .mvv .item:hover { transform: translateY(-5px); }
+
+    /* === Footer con redes === */
+    footer {
+      background: #e9dfd1;
+      padding: 30px 8%;
+      text-align: center;
+      color: #5f5143;
+    }
+    .socials {
+      margin-top: 15px;
+    }
+    .socials a {
+      margin: 0 10px;
+      font-size: 1.4rem;
+      color: #9a7b56;
+      text-decoration: none;
+      transition: color .3s ease, transform .3s ease;
+    }
+    .socials a:hover {
+      color: #7f6443;
+      transform: translateY(-3px);
+    }
+
+    @media (max-width: 700px) {
+      header { padding: 14px 6%; }
+      .hero { padding: 80px 16px; }
+      .hero h1 { font-size: 2.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">
+      <img src="pedrito.png" alt="Logo Handmade Candles">
+      <span class="logo-text">Handmade Candles</span>
+    </div>
+    <nav>
+      <a href="#">Inicio</a>
+      <a href="#catalogo">Catálogo</a>
+      <a href="#sobre-nosotros">Nosotros</a>
+      <button id="cart-btn">🛒 <span id="cart-count">0</span></button>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Luz que Inspira</h1>
+      <p>Velas artesanales creadas con esencia, calma y elegancia natural.</p>
+    </div>
+  </section>
+
+  <section id="catalogo" class="catalogo">
+    <div class="vela">
+      <img src="lavanda.jpg" alt="Lavanda">
+      <div class="vela-content">
+        <h3>Vela de Lavanda</h3>
+        <p>Relajante aroma floral para momentos de paz.</p>
+        <p class="precio">RD$450</p>
+        <button class="add-cart" data-name="Vela de Lavanda" data-price="450">Agregar al carrito</button>
+      </div>
+    </div>
+
+    <div class="vela">
+      <img src="vainilla.jpg" alt="Vainilla">
+      <div class="vela-content">
+        <h3>Vela de Vainilla</h3>
+        <p>Dulce y acogedora, ilumina con calidez tu espacio.</p>
+        <p class="precio">RD$400</p>
+        <button class="add-cart" data-name="Vela de Vainilla" data-price="400">Agregar al carrito</button>
+      </div>
+    </div>
+
+    <div class="vela">
+      <img src="canela.jpg" alt="Canela">
+      <div class="vela-content">
+        <h3>Vela de Canela</h3>
+        <p>Aroma especiado que despierta energía y bienestar.</p>
+        <p class="precio">RD$420</p>
+        <button class="add-cart" data-name="Vela de Canela" data-price="420">Agregar al carrito</button>
+      </div>
+    </div>
+  </section>
+
+  <div id="cart-modal" class="cart-modal"></div>
+
+  <section id="sobre-nosotros" class="sobre-nosotros">
+    <h2>Sobre Nosotros</h2>
+    <p>En <strong>Handmade Candles</strong> creemos que cada vela tiene una historia que contar. Creamos productos artesanales con cera natural, fragancias cuidadosamente seleccionadas y materiales sostenibles. Buscamos encender emociones, calidez y paz en cada espacio que iluminamos.</p>
+  </section>
+
+  <!-- NUEVA SECCIÓN: MISIÓN, VISIÓN Y VALORES -->
+  <section class="mvv">
+    <h2>Nuestra Esencia</h2>
+    <div class="grid">
+      <div class="item">
+        <h3>Misión</h3>
+        <p>Brindar bienestar, armonía y serenidad a través de velas artesanales elaboradas con amor, materiales naturales y fragancias inspiradoras.</p>
+      </div>
+      <div class="item">
+        <h3>Visión</h3>
+        <p>Ser una marca reconocida por iluminar hogares con calidez, sostenibilidad y arte, expandiendo la luz de Handmade Candles a todo el mundo.</p>
+      </div>
+      <div class="item">
+        <h3>Valores</h3>
+        <p>Amor por lo natural, compromiso con la calidad, sostenibilidad, creatividad y respeto por el bienestar del cliente y del planeta.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 Handmade Candles | Hecho con amor y luz ✨</p>
+    <div class="socials">
+      <a href="#" title="Instagram">📸</a>
+      <a href="#" title="Facebook">📘</a>
+      <a href="#" title="WhatsApp">💬</a>
+    </div>
+  </footer>
+
+  <script>
+    const addBtns = document.querySelectorAll('.add-cart');
+    const cartBtn = document.getElementById('cart-btn');
+    const cartCount = document.getElementById('cart-count');
+    const cartModal = document.getElementById('cart-modal');
+    let cart = [];
+
+    addBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const name = btn.dataset.name;
+        const price = parseFloat(btn.dataset.price);
+        const existing = cart.find(item => item.name === name);
+        if (existing) existing.qty++;
+        else cart.push({ name, price, qty: 1 });
+        updateCart();
+        cartBtn.animate([{ transform: 'scale(1.1)' }, { transform: 'scale(1)' }], { duration: 200 });
+      });
+    });
+
+    cartBtn.addEventListener('click', () => {
+      cartModal.style.display = cartModal.style.display === 'block' ? 'none' : 'block';
+    });
+
+    function updateCart() {
+      cartCount.textContent = cart.reduce((sum, i) => sum + i.qty, 0);
+      let html = '<h3>🕯️ Tu Carrito</h3>';
+      cart.forEach((item, i) => {
+        html += `
+          <div class="cart-item">
+            <span>${item.name} (x${item.qty})</span>
+            <span>RD$${item.price * item.qty} <span class="remove-item" data-index="${i}">✖</span></span>
+          </div>
+        `;
+      });
+      const total = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+      html += `<p class="total">Total: RD$${total}</p>`;
+      cartModal.innerHTML = html;
+
+      document.querySelectorAll('.remove-item').forEach(btn => {
+        btn.addEventListener('click', e => {
+          const i = e.target.dataset.index;
+          cart.splice(i, 1);
+          updateCart();
+        });
+      });
+    }
+
+    const velas = document.querySelectorAll('.vela');
+    const sections = document.querySelectorAll('.sobre-nosotros, .mvv');
+    window.addEventListener('scroll', () => {
+      velas.forEach(v => {
+        const rect = v.getBoundingClientRect();
+        if (rect.top < window.innerHeight - 50) v.classList.add('visible');
+      });
+      sections.forEach(s => {
+        const rect = s.getBoundingClientRect();
+        if (rect.top < window.innerHeight - 50) s.classList.add('visible');
+      });
+    });
+  </script>
+  <!-- ✨ Fondo de partículas doradas suaves -->
+<canvas id="particles-bg"></canvas>
+
+<script>
+  const canvas = document.getElementById('particles-bg');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+
+  // Ajustar tamaño del canvas al tamaño de la ventana
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  // Crear partículas doradas suaves
+  function createParticles(count) {
+    particles = [];
+    for (let i = 0; i < count; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 2 + 1,
+        color: `rgba(255, 215, 160, ${Math.random() * 0.8 + 0.2})`,
+        speedX: (Math.random() - 0.5) * 0.2,
+        speedY: (Math.random() - 0.5) * 0.3
+      });
+    }
+  }
+
+  createParticles(90); // cantidad de partículas
+
+  // Dibujar y animar
+  function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let p of particles) {
+      p.x += p.speedX;
+      p.y += p.speedY;
+
+      if (p.x < 0) p.x = canvas.width;
+      if (p.x > canvas.width) p.x = 0;
+      if (p.y < 0) p.y = canvas.height;
+      if (p.y > canvas.height) p.y = 0;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.fill();
+    }
+    requestAnimationFrame(animateParticles);
+  }
+
+  animateParticles();
+
+  // Estilo del canvas para que quede detrás del contenido
+  Object.assign(canvas.style, {
+    position: 'fixed',
+    top: '0',
+    left: '0',
+    width: '100%',
+    height: '100%',
+    zIndex: '-1',
+    pointerEvents: 'none',
+  });
+</script>
+
+</body>
+</html>
+
+
